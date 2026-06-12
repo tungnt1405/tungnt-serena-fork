@@ -45,7 +45,7 @@ dependencies = [
   # Exact pins because uvx installs from git, ignoring the lock file.
   "urllib3==2.7.0",
   "werkzeug==3.1.7",
-  "starlette==1.0.0",
+  "starlette==1.0.1",
   "python-multipart==0.0.27",
   "filelock==3.25.2",
   "cryptography==46.0.7",
@@ -75,12 +75,12 @@ dev = [
   # In version 1.0.4 we get a NoneType error related to some config conversion (yml_analytics is None and should be a list)
   "mypy==1.17.0",
   "poethepoet==0.36.0",
-  "pytest==8.4.1",
+  "pytest==9.0.3",
   "pytest-xdist==3.8.0",
   "ruff==0.12.5",
   "toml-sort==0.24.2",
   "types-pyyaml==6.0.12.20250516",
-  "syrupy==4.9.1",
+  "syrupy==5.3.2",
   "types-requests==2.32.4.20250809",
   # docs
   "sphinx==7.4.7",
@@ -95,7 +95,9 @@ dev = [
   "tornado==6.5.5",
   "wheel==0.46.3",
   "pyasn1==0.6.3",
-  "PyJWT==2.12.0",
+  "PyJWT==2.13.0",
+  "pygments==2.20.0",
+  "gitpython==3.1.50",
 ]
 agno = ["agno==2.5.10", "sqlalchemy==2.0.41"]  # agno bumped for session state overwrite CVE
 google = ["google-genai==1.27.0"]
