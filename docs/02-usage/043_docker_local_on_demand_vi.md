@@ -106,12 +106,15 @@ mkdir -p "$project_dir/.serena/docker-home"
 docker run --rm -i \
     --env=SERENA_HOME=/workspaces/project/.serena/docker-home \
     --volume="$project_dir:/workspaces/project:rw" \
-    --workdir=/workspaces/project \
     "$SERENA_IMAGE" \
     serena project create --index
 ```
 
 Sau đó kiểm tra `.serena/project.yml` trước khi đăng ký MCP server.
+
+Không đặt Docker `--workdir` sang project. Image Serena phát hành kích hoạt virtual
+environment từ working directory mặc định của image; Serena đã nhận project qua
+`--project=/workspaces/project`.
 
 ## Cài wrapper local
 
@@ -192,7 +195,6 @@ docker_args=(
     --network="$network_mode"
     --env=SERENA_HOME=/workspaces/project/.serena/docker-home
     --env=SERENA_USAGE_REPORTING=false
-    --workdir=/workspaces/project
 )
 
 if [[ "$mount_mode" == "rw" ]]; then

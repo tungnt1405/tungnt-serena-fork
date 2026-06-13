@@ -383,7 +383,6 @@ docker_args=(
     --env=SERENA_HOME=/workspaces/serena-home
     --env=SERENA_USAGE_REPORTING=false
     --volume="$home_dir:/workspaces/serena-home:rw"
-    --workdir=/workspaces/project
 )
 
 if [[ "$mount_mode" == "rw" ]]; then
@@ -403,6 +402,10 @@ docker "${docker_args[@]}" "$SERENA_IMAGE" \
     --enable-web-dashboard=false \
     --open-web-dashboard=false
 ```
+
+Không đặt Docker `--workdir` sang project. Image Serena phát hành kích hoạt virtual
+environment từ working directory mặc định của image; tham số
+`--project=/workspaces/project` đã chọn đúng project cần phục vụ.
 
 Cài đặt:
 
