@@ -9,21 +9,23 @@ Các ví dụ command trong tài liệu này dùng Linux/macOS shell (`/bin/bash
 1. [Cài đặt Serena để dùng bình thường](#cài-đặt-serena-để-dùng-bình-thường)
 2. [Biến môi trường và file `.env`](#biến-môi-trường-và-file-env)
 3. [Dùng repo source cho dev](#dùng-repo-source-cho-dev)
-4. [Nguyên tắc chính](#nguyên-tắc-chính)
-5. [Thiết lập một project mới](#thiết-lập-một-project-mới)
-6. [Khởi động Serena đúng project](#khởi-động-serena-đúng-project)
-7. [Không dùng chung một Serena instance cho nhiều project độc lập](#không-dùng-chung-một-serena-instance-cho-nhiều-project-độc-lập)
-8. [Cấu hình nơi lưu `.serena`](#cấu-hình-nơi-lưu-serena)
-9. [Đặt tên project](#đặt-tên-project)
-10. [Monorepo và multi-package](#monorepo-và-multi-package)
-11. [Git worktree](#git-worktree)
-12. [JetBrains backend](#jetbrains-backend)
-13. [Checklist cho mỗi project](#checklist-cho-mỗi-project)
-14. [Dấu hiệu đang bị chồng chéo index](#dấu-hiệu-đang-bị-chồng-chéo-index)
-15. [Cách xử lý khi nghi bị nhầm project](#cách-xử-lý-khi-nghi-bị-nhầm-project)
-16. [Mẫu cấu hình an toàn](#mẫu-cấu-hình-an-toàn)
-17. [Tóm tắt nhanh](#tóm-tắt-nhanh)
+4. [Triển khai Docker local hoặc VPS](#triển-khai-docker-local-hoặc-vps)
+5. [Nguyên tắc chính](#nguyên-tắc-chính)
+6. [Thiết lập một project mới](#thiết-lập-một-project-mới)
+7. [Khởi động Serena đúng project](#khởi-động-serena-đúng-project)
+8. [Không dùng chung một Serena instance cho nhiều project độc lập](#không-dùng-chung-một-serena-instance-cho-nhiều-project-độc-lập)
+9. [Cấu hình nơi lưu `.serena`](#cấu-hình-nơi-lưu-serena)
+10. [Đặt tên project](#đặt-tên-project)
+11. [Monorepo và multi-package](#monorepo-và-multi-package)
+12. [Git worktree](#git-worktree)
+13. [JetBrains backend](#jetbrains-backend)
+14. [Checklist cho mỗi project](#checklist-cho-mỗi-project)
+15. [Dấu hiệu đang bị chồng chéo index](#dấu-hiệu-đang-bị-chồng-chéo-index)
+16. [Cách xử lý khi nghi bị nhầm project](#cách-xử-lý-khi-nghi-bị-nhầm-project)
+17. [Mẫu cấu hình an toàn](#mẫu-cấu-hình-an-toàn)
+18. [Tóm tắt nhanh](#tóm-tắt-nhanh)
 
+(cài-đặt-serena-để-dùng-bình-thường)=
 ## Cài đặt Serena để dùng bình thường
 
 Nếu bạn chỉ muốn dùng Serena như một tool đã cài vào máy, cài qua `uv tool`:
@@ -63,6 +65,7 @@ Khi muốn cập nhật bản đã cài qua `uv tool`:
 uv tool upgrade serena-agent
 ```
 
+(biến-môi-trường-và-file-env)=
 ## Biến môi trường và file `.env`
 
 Serena không tự động đọc file `.env`. File `.env` chỉ là quy ước của shell/tooling để bạn nạp environment variables trước khi chạy `serena`.
@@ -173,6 +176,7 @@ Không commit `.env` nếu có secret. Repo này đã ignore `.env`, nhưng vẫ
 git status --short
 ```
 
+(dùng-repo-source-cho-dev)=
 ## Dùng repo source cho dev
 
 Nếu bạn clone repo Serena để phát triển hoặc test fork, không cần `uv tool install`. Chạy Serena trực tiếp từ source bằng `uv run`.
@@ -214,6 +218,24 @@ uv run serena --help
 
 Nếu lockfile hoặc dependency đổi, `uv sync` sẽ cập nhật môi trường dev. Nếu bạn dùng bản cài qua `uv tool`, `git pull` repo source không ảnh hưởng đến command global `serena`; lúc đó phải dùng `uv tool upgrade serena-agent` hoặc chạy bằng `uv run --directory /path/to/serena serena ...`.
 
+(triển-khai-docker-local-hoặc-vps)=
+## Triển khai Docker local hoặc VPS
+
+Nếu muốn container Serena chỉ tồn tại trong thời gian MCP client đang dùng, xem
+hai hướng dẫn riêng:
+
+- [Docker local theo nhu cầu](043_docker_local_on_demand_vi.md): MCP client tự
+  chạy `docker run --rm -i`; đóng MCP process thì container tự xóa, còn
+  `.serena`, memories, index và language-server resources vẫn nằm trên host.
+- [Docker VPS qua SSH theo nhu cầu](044_docker_vps_ssh_on_demand_vi.md): nhiều
+  project được allowlist trên VPS, mỗi phiên MCP tự tạo một container riêng và
+  không public MCP/dashboard port.
+
+Hai mô hình đều giữ nguyên nguyên tắc một container/Serena instance chỉ phục vụ
+một project. Không mount một thư mục cha chứa nhiều repo nếu container chỉ cần
+làm việc với một repo.
+
+(nguyên-tắc-chính)=
 ## Nguyên tắc chính
 
 Serena làm việc theo mô hình project-based. Mỗi project nên có:
@@ -232,6 +254,7 @@ project-b/.serena/cache/
 
 Đây là cách an toàn nhất để tránh chồng chéo.
 
+(thiết-lập-một-project-mới)=
 ## Thiết lập một project mới
 
 Đi vào đúng root của project trước:
@@ -269,6 +292,7 @@ Bạn nên thấy ít nhất:
 
 `cache/` có thể chỉ xuất hiện sau khi index hoặc sau lần đầu dùng tool symbol.
 
+(khởi-động-serena-đúng-project)=
 ## Khởi động Serena đúng project
 
 ### Cách khuyến nghị cho một project cố định
@@ -310,6 +334,7 @@ Nếu đang ở trong git worktree lồng trong project khác, boundary gần nh
 
 Điều kiện quan trọng: phải mở agent từ đúng project hoặc thư mục con của project. Không nên mở agent từ một folder tổng hợp chứa nhiều repo nếu bạn không muốn folder tổng hợp đó trở thành project.
 
+(không-dùng-chung-một-serena-instance-cho-nhiều-project-độc-lập)=
 ## Không dùng chung một Serena instance cho nhiều project độc lập
 
 Serena MCP server là stateful. Một instance chỉ có một active project tại một thời điểm.
@@ -324,6 +349,7 @@ Nếu nhiều agent làm trên nhiều project khác nhau, hãy chạy mỗi pro
 
 Không nên dùng một HTTP server duy nhất rồi liên tục switch qua lại giữa các project độc lập, vì active project, language server và cache runtime dễ gây nhầm lẫn trong phiên làm việc.
 
+(cấu-hình-nơi-lưu-serena)=
 ## Cấu hình nơi lưu `.serena`
 
 Mặc định trong `serena_config.yml`:
@@ -350,6 +376,7 @@ project_serena_folder_location: "/home/you/serena-metadata/.serena"
 
 Cấu hình trên khiến mọi project dùng chung một folder `.serena`, rất dễ gây chồng chéo `project.yml`, memories và cache.
 
+(đặt-tên-project)=
 ## Đặt tên project
 
 Trong `.serena/project.yml`, `project_name` là tên dùng để kích hoạt project bằng tên:
@@ -376,6 +403,7 @@ project_name: "backend"
 project_name: "repo"
 ```
 
+(monorepo-và-multi-package)=
 ## Monorepo và multi-package
 
 Nếu các package cần được đọc và sửa cùng nhau trong một tác vụ, hãy coi thư mục monorepo là một Serena project:
@@ -402,6 +430,7 @@ Chỉ thêm các folder thật sự cần symbol/reference cross-package, vì m�
 
 Nếu các repo độc lập và ít khi cần sửa chung trong một task, dùng mỗi repo một Serena project riêng thay vì gom tất cả vào một project lớn.
 
+(git-worktree)=
 ## Git worktree
 
 Với git worktree, mỗi worktree nên được xem như một project riêng nếu bạn muốn index/cache tách biệt:
@@ -422,6 +451,7 @@ serena start-mcp-server --context codex --project-from-cwd
 
 Serena sẽ chọn boundary gần nhất có `.serena/project.yml` hoặc `.git`, nên worktree gần nhất sẽ thắng project cha.
 
+(jetbrains-backend)=
 ## JetBrains backend
 
 Nếu dùng JetBrains backend, việc indexing code do IDE xử lý. Khi đó `serena project index` không phải bước quan trọng cho symbol cache LSP.
@@ -434,6 +464,7 @@ serena start-mcp-server --language-backend JetBrains --project /path/to/project-
 
 Nếu IDE đang mở `/path/to/project-a`, Serena cũng nên activate đúng `/path/to/project-a`, không phải parent folder hay subfolder.
 
+(checklist-cho-mỗi-project)=
 ## Checklist cho mỗi project
 
 Trước khi dùng Serena cho một repo mới:
@@ -447,6 +478,7 @@ Trước khi dùng Serena cho một repo mới:
 7. Khởi động MCP server bằng `--project <path>` hoặc `--project-from-cwd`.
 8. Không dùng chung một HTTP Serena server cho các project khác nhau.
 
+(dấu-hiệu-đang-bị-chồng-chéo-index)=
 ## Dấu hiệu đang bị chồng chéo index
 
 Có thể đang activate nhầm project nếu thấy:
@@ -458,6 +490,7 @@ Có thể đang activate nhầm project nếu thấy:
 - các agent làm việc trên project khác nhau nhưng kết nối cùng một HTTP endpoint;
 - global `project_serena_folder_location` trỏ tất cả project vào cùng một folder.
 
+(cách-xử-lý-khi-nghi-bị-nhầm-project)=
 ## Cách xử lý khi nghi bị nhầm project
 
 Kiểm tra active project trong dashboard hoặc bằng tool Serena nếu client có hỗ trợ.
@@ -499,6 +532,7 @@ cd /path/to/project-b
 serena project index
 ```
 
+(mẫu-cấu-hình-an-toàn)=
 ## Mẫu cấu hình an toàn
 
 `.serena/project.yml` tối thiểu:
@@ -531,6 +565,7 @@ Hoặc, nếu agent luôn được mở trong đúng repo:
 serena start-mcp-server --context codex --project-from-cwd
 ```
 
+(tóm-tắt-nhanh)=
 ## Tóm tắt nhanh
 
 - Mỗi repo một `.serena/project.yml`.

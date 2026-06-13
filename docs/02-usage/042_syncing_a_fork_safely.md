@@ -17,6 +17,7 @@ This guide explains how to update a fork from upstream while keeping local chang
 11. [Recovery Options](#recovery-options)
 12. [Quick Checklist](#quick-checklist)
 
+(core-rule)=
 ## Core Rule
 
 Never sync a fork while important local work is only in the working tree.
@@ -29,6 +30,7 @@ Before syncing, make sure your local work is either:
 
 Git can usually preserve committed changes during merge or rebase. Uncommitted changes are the easiest to overwrite accidentally.
 
+(terminology)=
 ## Terminology
 
 In a fork setup, the remotes usually mean:
@@ -53,6 +55,7 @@ upstream  git@github.com:oraios/serena.git (fetch)
 upstream  git@github.com:oraios/serena.git (push)
 ```
 
+(recommended-branch-layout)=
 ## Recommended Branch Layout
 
 Use branches to separate upstream code from your fork-specific changes:
@@ -66,6 +69,7 @@ Use branches to separate upstream code from your fork-specific changes:
 
 This makes future syncs much safer because upstream changes and fork-specific changes are not mixed blindly.
 
+(one-time-remote-setup)=
 ## One-Time Remote Setup
 
 If `upstream` is missing, add it:
@@ -77,6 +81,7 @@ git fetch upstream
 
 If the upstream URL is different for your fork, replace it with the real original repository URL.
 
+(before-syncing)=
 ## Before Syncing
 
 Start by checking the working tree:
@@ -101,6 +106,7 @@ git stash push -u -m "wip before upstream sync"
 
 Use stash only for short-term work. For important changes, a commit on a branch is safer.
 
+(safe-sync-workflow)=
 ## Safe Sync Workflow
 
 Fetch upstream first:
@@ -140,6 +146,7 @@ git push --force-with-lease origin main
 
 Use `--force-with-lease`, not `--force`. It refuses to overwrite remote work you do not have locally.
 
+(using-githubs-sync-fork-button)=
 ## Using GitHub's Sync Fork Button
 
 GitHub's **Sync fork** button updates your fork on GitHub from upstream.
@@ -166,6 +173,7 @@ If your work is already committed:
 git pull origin main
 ```
 
+(handling-conflicts)=
 ## Handling Conflicts
 
 If Git reports conflicts, inspect them:
@@ -196,6 +204,7 @@ git rebase --continue
 
 If you are unsure, stop and inspect before continuing. Conflicts are where local work is most often lost by accident.
 
+(keeping-fork-specific-changes-separate)=
 ## Keeping Fork-Specific Changes Separate
 
 For long-lived fork customizations, prefer this pattern:
@@ -218,6 +227,7 @@ git commit -m "docs: document local Serena fork workflow"
 git commit -m "security: disable remote dashboard news by default"
 ```
 
+(what-not-to-do)=
 ## What Not To Do
 
 Avoid these unless you have a backup and deliberately want to discard local changes:
@@ -237,6 +247,7 @@ git branch backup/before-reset
 git reset --hard upstream/main
 ```
 
+(recovery-options)=
 ## Recovery Options
 
 If something goes wrong, check the reflog:
@@ -265,6 +276,7 @@ If a file was committed before, you can recover it from a previous commit:
 git restore --source <commit-sha> -- path/to/file
 ```
 
+(quick-checklist)=
 ## Quick Checklist
 
 Before syncing:
