@@ -1,0 +1,24 @@
+plan_file: docs/tungnt-ai-skills/plans/2026-06-13-serena-docker-on-demand-docs.md
+started_at: 2026-06-13
+overall_status: complete
+tasks:
+  - id: 1
+    name: Document Local Docker On-Demand Deployment
+    status: complete
+    completed_at: 2026-06-13
+  - id: 2
+    name: Document VPS Docker Over SSH
+    status: complete
+    completed_at: 2026-06-13
+  - id: 3
+    name: Link The Guides From The Isolation Guide
+    status: complete
+    completed_at: 2026-06-13
+  - id: 4
+    name: Validate Documentation
+    status: complete
+    completed_at: 2026-06-13
+  - id: 5
+    name: Commit The Documentation
+    status: complete
+    completed_at: 2026-06-13

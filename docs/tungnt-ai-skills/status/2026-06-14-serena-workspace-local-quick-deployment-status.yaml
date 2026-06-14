@@ -1,0 +1,20 @@
+plan_file: docs/tungnt-ai-skills/plans/2026-06-14-serena-workspace-local-quick-deployment.md
+started_at: 2026-06-14
+overall_status: complete
+tasks:
+  - id: 1
+    name: Write The Workspace-Local Guide
+    status: complete
+    completed_at: 2026-06-14
+  - id: 2
+    name: Link The Guide
+    status: complete
+    completed_at: 2026-06-14
+  - id: 3
+    name: Validate With Docker
+    status: complete
+    completed_at: 2026-06-14
+  - id: 4
+    name: Commit
+    status: complete
+    completed_at: 2026-06-14
