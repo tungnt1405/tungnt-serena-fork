@@ -12,6 +12,13 @@ Tài liệu này hướng dẫn chạy Serena trong container dùng một lần:
 Mỗi MCP entry trong tài liệu gắn với đúng một project. Đây là điều kiện quan
 trọng để tránh chồng chéo active project, index và cache.
 
+Hướng dẫn này cài một wrapper dùng chung toàn máy tại `~/.local/bin` hoặc
+`/usr/local/bin`. Nếu chỉ cần triển khai nhanh cho một project trên máy tester,
+máy khách hoặc máy cá nhân dùng tạm, xem
+[Docker workspace-local triển khai nhanh](043_docker_workspace_local_quick_deployment_vi.md).
+Mô hình đó đặt wrapper trong project, dùng `.git/info/exclude` và không cần cài
+tooling toàn máy.
+
 ## Cấu hình phần cứng khuyến nghị
 
 Hãy tính theo lượng tài nguyên còn khả dụng trong lúc Serena index project,

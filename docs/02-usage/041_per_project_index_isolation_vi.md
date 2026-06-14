@@ -9,7 +9,7 @@ Các ví dụ command trong tài liệu này dùng Linux/macOS shell (`/bin/bash
 1. [Cài đặt Serena để dùng bình thường](#cài-đặt-serena-để-dùng-bình-thường)
 2. [Biến môi trường và file `.env`](#biến-môi-trường-và-file-env)
 3. [Dùng repo source cho dev](#dùng-repo-source-cho-dev)
-4. [Triển khai Docker local hoặc VPS](#triển-khai-docker-local-hoặc-vps)
+4. [Triển khai Docker local, workspace-local hoặc VPS](#triển-khai-docker-local-workspace-local-hoặc-vps)
 5. [Nguyên tắc chính](#nguyên-tắc-chính)
 6. [Thiết lập một project mới](#thiết-lập-một-project-mới)
 7. [Khởi động Serena đúng project](#khởi-động-serena-đúng-project)
@@ -218,15 +218,19 @@ uv run serena --help
 
 Nếu lockfile hoặc dependency đổi, `uv sync` sẽ cập nhật môi trường dev. Nếu bạn dùng bản cài qua `uv tool`, `git pull` repo source không ảnh hưởng đến command global `serena`; lúc đó phải dùng `uv tool upgrade serena-agent` hoặc chạy bằng `uv run --directory /path/to/serena serena ...`.
 
-(triển-khai-docker-local-hoặc-vps)=
-## Triển khai Docker local hoặc VPS
+(triển-khai-docker-local-workspace-local-hoặc-vps)=
+## Triển khai Docker local, workspace-local hoặc VPS
 
 Nếu muốn container Serena chỉ tồn tại trong thời gian MCP client đang dùng, xem
-hai hướng dẫn riêng:
+ba hướng dẫn riêng:
 
 - [Docker local theo nhu cầu](043_docker_local_on_demand_vi.md): MCP client tự
   chạy `docker run --rm -i`; đóng MCP process thì container tự xóa, còn
   `.serena`, memories, index và language-server resources vẫn nằm trên host.
+- [Docker workspace-local triển khai nhanh](043_docker_workspace_local_quick_deployment_vi.md):
+  wrapper nằm trong đúng project và được local exclude bằng
+  `.git/info/exclude`; phù hợp máy tester, máy khách hoặc máy cá nhân dùng tạm
+  mà không muốn cài wrapper toàn máy.
 - [Docker VPS qua SSH theo nhu cầu](044_docker_vps_ssh_on_demand_vi.md): nhiều
   project được allowlist trên VPS, mỗi phiên MCP tự tạo một container riêng và
   không public MCP/dashboard port.
