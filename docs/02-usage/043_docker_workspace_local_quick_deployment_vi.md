@@ -494,6 +494,46 @@ Thay `<PROJECT_ROOT>` bằng absolute path thật. Không thay nội dung wrappe
 Nếu file cấu hình đã tồn tại, chỉ merge object/server entry `serena-local`.
 Không thay toàn bộ file bằng ví dụ.
 
+### Nguyên tắc cấu hình theo từng project
+
+Với workspace-local deployment, cấu hình MCP cũng nên đặt theo từng project. Mỗi
+project có wrapper riêng và wrapper tự suy ra project root từ vị trí của chính
+nó:
+
+```text
+<PROJECT_ROOT>/.serena-local/serena-docker
+```
+
+Vì vậy, nếu đưa entry này vào config global của một agent, agent đó sẽ luôn trỏ
+về project chứa wrapper đã hardcode, kể cả khi bạn đang mở project khác. Cách an
+toàn là đặt config ở file project-local khi client hỗ trợ:
+
+| Client | Nên cấu hình ở đâu |
+| --- | --- |
+| Claude Code CLI | `<project>/.mcp.json` hoặc `claude mcp add --scope project` |
+| Codex CLI/App | `<project>/.codex/config.toml` |
+| VS Code Copilot | `<project>/.vscode/mcp.json` |
+| JetBrains Junie | `<project>/.junie/mcp/mcp.json` |
+| Antigravity | project/workspace MCP config nếu phiên bản hỗ trợ |
+| JetBrains AI Assistant / Copilot | project-scoped MCP config nếu phiên bản hỗ trợ |
+| Claude Desktop | chỉ có user-level config; đặt tên server kèm project và xóa khi không dùng |
+
+Không thêm cùng một Serena wrapper vào cả project config và global config của
+cùng client. Nếu một IDE chỉ hỗ trợ user-level/global MCP config, đặt tên server
+có project name, ví dụ `serena-marketplace`, và kiểm tra kỹ `command` trước khi
+dùng trong project khác.
+
+Bootstrap và index chỉ cần chạy một lần cho project:
+
+```bash
+cd <PROJECT_ROOT>
+./.serena-local/serena-docker index
+```
+
+Sau đó IDE/agent sẽ tự start MCP server qua config của chính nó. Không chạy
+`./.serena-local/serena-docker <context> ro` bằng tay trừ khi đang smoke test
+stdio.
+
 ### Claude Code CLI
 
 Đăng ký theo project, mặc định read-only:
@@ -557,7 +597,32 @@ Thoát hoàn toàn Claude Desktop rồi mở lại. Khi bỏ project, xóa entry
 
 ### Codex CLI
 
-Đăng ký bằng CLI:
+Ưu tiên cấu hình trong project:
+
+```toml
+# <project>/.codex/config.toml
+
+[mcp_servers.serena-local]
+enabled = true
+command = "<PROJECT_ROOT>/.serena-local/serena-docker"
+args = ["codex", "ro"]
+startup_timeout_sec = 120
+tool_timeout_sec = 600
+```
+
+Kiểm tra từ đúng project root:
+
+```bash
+cd <PROJECT_ROOT>
+codex mcp list
+```
+
+Kết quả phải có `serena-local` ở trạng thái `enabled`. Nếu chạy lệnh trên ở
+project khác mà vẫn thấy server trỏ về project này, bạn đã cấu hình nhầm vào
+global `~/.codex/config.toml`.
+
+Chỉ dùng `codex mcp add` khi bạn thật sự muốn cấu hình user-level cho một máy
+chỉ dùng một project Serena:
 
 ```bash
 codex mcp add serena-local -- \
@@ -565,31 +630,34 @@ codex mcp add serena-local -- \
     codex ro
 ```
 
-Hoặc merge vào `.codex/config.toml` của trusted project:
-
-```toml
-[mcp_servers.serena-local]
-command = "<PROJECT_ROOT>/.serena-local/serena-docker"
-args = ["codex", "ro"]
-startup_timeout_sec = 120
-tool_timeout_sec = 600
-```
-
 Không thêm cùng server vào cả project config và `~/.codex/config.toml`.
 
 ### Codex App
 
-Codex App và Codex CLI dùng cùng định dạng `config.toml`. Merge block TOML ở
-trên vào project config hoặc config được mở từ MCP Settings, sau đó tạo thread
-mới.
+Codex App và Codex CLI dùng cùng định dạng `config.toml`. Với nhiều project,
+merge block TOML ở trên vào `<project>/.codex/config.toml`, không đặt wrapper
+project-local vào global config. Sau đó mở hoặc tạo thread mới từ đúng project.
+
+Codex App không đọc `.vscode/mcp.json`; VS Code chạy được không có nghĩa Codex
+đã nhận Serena. Kiểm tra bằng:
+
+```bash
+cd <PROJECT_ROOT>
+codex mcp list
+docker ps --filter label=serena.workspace-local=true
+```
+
+`codex mcp list` xác nhận Codex đã nạp config. Container Docker chỉ xuất hiện
+sau khi Codex thật sự start MCP server trong thread.
 
 Nếu app giữ MCP process nền, container tiếp tục chạy đến khi app dừng server
 hoặc thoát. Đây là vòng đời bình thường của stdio MCP.
 
 ### Antigravity IDE và Antigravity CLI
 
-Merge entry stdio sau vào màn hình MCP hoặc file JSON mà phiên bản Antigravity
-đang dùng:
+Merge entry stdio sau vào project/workspace MCP config nếu phiên bản Antigravity
+hỗ trợ. Nếu chỉ có màn hình global MCP, đặt tên server theo project và tránh
+dùng lại entry này khi mở project khác:
 
 ```json
 {
@@ -635,7 +703,8 @@ tránh mount nhầm project.
 
 ### JetBrains AI Assistant
 
-Vào Settings / Tools / AI Assistant / MCP và merge:
+Vào Settings / Tools / AI Assistant / MCP và merge. Ưu tiên project-scoped
+configuration nếu IDE hỗ trợ:
 
 ```json
 {
@@ -651,8 +720,8 @@ Vào Settings / Tools / AI Assistant / MCP và merge:
 }
 ```
 
-Ưu tiên project-scoped configuration. Nếu IDE chỉ hỗ trợ global config, đặt tên
-server có project name và xóa entry sau khi kết thúc test.
+Nếu IDE chỉ hỗ trợ global config, đặt tên server có project name và xóa entry
+sau khi kết thúc test.
 
 ### JetBrains Junie
 
@@ -713,6 +782,34 @@ bash -n .serena-local/serena-docker
 
 Nếu chạy trực tiếp trong terminal không có MCP client, stdin có thể đóng ngay.
 Log vẫn phải cho thấy Serena activate đúng project trước khi shutdown.
+
+### Kiểm tra client nhận đúng project
+
+Mở terminal ở đúng project root rồi kiểm tra client tương ứng:
+
+```bash
+cd <PROJECT_ROOT>
+codex mcp list
+claude mcp get serena-local
+```
+
+Với VS Code, kiểm tra file MCP đang nằm trong đúng workspace:
+
+```bash
+test -f .vscode/mcp.json
+```
+
+Nếu một client vẫn thấy Serena khi đang đứng ở project khác chưa cấu hình
+Serena, kiểm tra và gỡ entry global của client đó. Với Codex, entry global nằm ở
+`~/.codex/config.toml`; với Claude Desktop, entry nằm trong
+`claude_desktop_config.json`.
+
+Container Docker chỉ xác nhận server đã được start, không thay thế kiểm tra
+config:
+
+```bash
+docker ps --filter label=serena.workspace-local=true
+```
 
 ### Kiểm tra container tự xóa
 
