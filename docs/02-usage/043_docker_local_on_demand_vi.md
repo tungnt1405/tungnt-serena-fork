@@ -119,6 +119,48 @@ docker run --rm -i \
 
 Sau đó kiểm tra `.serena/project.yml` trước khi đăng ký MCP server.
 
+### Chọn language key
+
+Danh sách language key phụ thuộc vào image Serena đang dùng. Image hiện tại hỗ
+trợ các key sau:
+
+```text
+al, angular, ansible, bash, clojure, cpp, cpp_ccls, crystal,
+csharp, csharp_omnisharp, dart, elixir, elm, erlang, fortran,
+fsharp, go, groovy, haskell, haxe, hlsl, html, java, json, julia,
+kotlin, lean4, lua, luau, markdown, matlab, msl, nix, ocaml,
+pascal, perl, php, php_phpactor, powershell, python, python_jedi,
+python_ty, r, rego, ruby, ruby_solargraph, rust, scala, scss,
+solidity, svelte, swift, systemverilog, terraform, toml,
+typescript, typescript_vts, vue, yaml, zig
+```
+
+Các mapping dễ nhầm:
+
+| Dự án/file | Dùng key |
+| --- | --- |
+| JavaScript, React JS, `.js`, `.jsx` | `typescript` |
+| TypeScript, React TS, `.ts`, `.tsx` | `typescript` |
+| Angular | `angular` |
+| Svelte | `svelte` |
+| CSS, SCSS, Sass | `scss` |
+| C | `cpp` |
+
+Khi project có nhiều ngôn ngữ, truyền nhiều `--language` hoặc sửa
+`.serena/project.yml`:
+
+```yaml
+languages:
+- python
+- typescript
+```
+
+Language đầu tiên là default/fallback. Sau khi đổi language list, chạy index lại:
+
+```bash
+serena project index /path/to/project-a
+```
+
 Không đặt Docker `--workdir` sang project. Image Serena phát hành kích hoạt virtual
 environment từ working directory mặc định của image; Serena đã nhận project qua
 `--project=/workspaces/project`.
